@@ -62,6 +62,7 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public List<BookDTO> findBooks(String query) {
+        query="%"+query+"%";
       return bookRepository.findBookByIsbnLikeOrTitleLikeOrAuthorLike
               (query,query,query).stream().map(book->modelMapper.
               map(book, BookDTO.class)).collect(Collectors.toList());
