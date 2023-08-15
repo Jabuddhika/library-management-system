@@ -1,43 +1,54 @@
 package lk.ijse.dep10.library.book.api;
 
+import lk.ijse.dep10.library.book.dto.BookDTO;
+import lk.ijse.dep10.library.book.service.BookService;
+import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Arrays;
+import java.util.List;
 
 @RestController
 @CrossOrigin
 @RequestMapping("/api/v1/books")
 public class BookRestController {
 
+    private final BookService bookService;
 
-    @PostMapping
-    public String saveBook(){
-        System.out.println("psot");
-        return "post";
+    public BookRestController(BookService bookService) {
+        this.bookService = bookService;
     }
 
-    @PatchMapping("/{isbn}")
-    public String updateBook(){
-        System.out.println("upadte");
-        return "update";
+
+    @PostMapping(consumes = "application/json")
+    @ResponseStatus(HttpStatus.CREATED)
+    public void saveBook(@RequestBody @Validated BookDTO bookDTO){
+        bookService.saveBook(bookDTO);
+    }
+
+    @PatchMapping(value = "/{isbn}",consumes = "application/json")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void updateBook(@RequestBody @Validated BookDTO bookDTO, @PathVariable String isbn){
+        bookDTO.setIsbn(isbn);
+        bookService.updateBook(bookDTO);
     }
 
     @DeleteMapping("/{isbn}")
-    public String removeBook(){
-        System.out.println("remove");
-        return "remove";
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void removeBook(@PathVariable String isbn){
+        bookService.deleteBook(isbn);
     }
 
     @GetMapping("/{isbn}")
-    public String getBook(){
-        System.out.println("get");
-        return "get";
+    public BookDTO getBook(@PathVariable String isbn){
+         return bookService.getBook(isbn);
+
     }
 
     @GetMapping
-    public String findBooks(){
-        System.out.println("find");
-        return "find";
+    public List<BookDTO> findBooks(@RequestParam(value = "q",required = false) String query){
+        if(query==null) query="";
+        return bookService.findBooks(query);
     }
 
 
