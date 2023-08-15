@@ -2,6 +2,8 @@ package lk.ijse.dep10.library.book.api;
 
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
+
 @RestController
 @CrossOrigin
 @RequestMapping("/api/v1/books")
@@ -10,31 +12,33 @@ public class BookRestController {
 
     @PostMapping
     public String saveBook(){
-        return "<h1>save book</h1>";
+        System.out.println("psot");
+        return "post";
     }
 
-
-    @PatchMapping
+    @PatchMapping("/{isbn}")
     public String updateBook(){
-        return "<h1>update book</h1>";
+        System.out.println("upadte");
+        return "update";
     }
 
-
-    @DeleteMapping
+    @DeleteMapping("/{isbn}")
     public String removeBook(){
-        return "<h1>remove book</h1>";
+        System.out.println("remove");
+        return "remove";
     }
 
-
-    @GetMapping
+    @GetMapping("/{isbn}")
     public String getBook(){
-        return "<h1>get book</h1>";
+        System.out.println("get");
+        return "get";
     }
-
 
     @GetMapping
-    public String findBook(){
-        return "<h1>find books</h1>";
+    public String findBooks(){
+        System.out.println("find");
+        return "find";
     }
+
 
 }
