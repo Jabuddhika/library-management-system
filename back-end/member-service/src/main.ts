@@ -1,5 +1,11 @@
-import express from 'express';
+import express, {Express} from 'express';
+import env from 'dotenv';
+import {router as MembersRouter} from "./api/member-restcontroller";
 
-const app=express();
+env.config();
 
-app.listen(8082,()=>console.log("server is opened"))
+const app:Express=express();
+
+app.use("/api/v1/members",MembersRouter)
+app.listen(process.env.APP_PORT,()=>console.log("server is opened"));
+
