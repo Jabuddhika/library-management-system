@@ -4,15 +4,6 @@ import {Collection, Db, MongoClient} from "mongodb";
 import env from 'dotenv';
 import {stat, Stats} from "fs";
 import {Member} from "../dto/member";
-import {constants} from "http2";
-import {constants} from "os";
-import errno = module
-
-
-
-
-
-
 
 env.config();
 
@@ -21,7 +12,7 @@ export const router:Router=express.Router();
 router.use(cors());
 router.use(json());
 const mongo=new MongoClient(process.env.APP_DB_URL!)
-let memberRepo:Collection<Document>
+let memberRepo:Collection<Member>
 async function main() {
     await mongo.connect();
     console.log('Connected successfully to server');
@@ -52,27 +43,41 @@ function validateMember(member:Member){
     if(!/^\d{3}-\d{7}$/.test(member.contact))
         validationErrors.push({field:"data validation",error:"invalid contact"})
 
+    return validationErrors;
+
 
 }
 
-router.post("/",async(req, res)=>{
+router.post("/",async(req, res,next)=>{
   try {
       const member:Member=await req.body as Member;
+      console.log(member)
 
+     const validationErrorList=validateMember(member);
+      console.log(validationErrorList)
 
+     if(validationErrorList.length) throw {name:"validation",errors:validationErrorList};
 
+     if(await memberRepo.findOne({_id: member._id})){
+        throw {name:"conflict",message:`${member._id} already exist` }
 
+     }else if(await memberRepo.findOne({contact:member.contact})){
+         throw {name:"conflict",message:`${member.contact} already exist`}
 
+     }
 
-      await memberRepo.insertOne(req.body);
-     res.sendStatus(201);
-
+     await memberRepo.insertOne(member);
+     res.sendStatus(201)
 
   }catch (e:any){
-      if(e.name && e.name==="data validation"){
-        res.status(400).json({
-            "msg":e.message
-        })
+      if(e.name && e.name==="validation") {
+          res.status(400).json(e.errors)
+
+      }else if(e.name && e.name==="conflict"){
+          res.status(409).json(e.message)
+
+      }else {
+          next(e);
       }
   }
 
